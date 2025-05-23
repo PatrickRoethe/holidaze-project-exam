@@ -2,3 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply font-sans text-dark bg-white;
+  }
+
+  a {
+    @apply text-primary underline-offset-2 hover:underline;
+  }
+
+  input, select, textarea, button {
+    @apply rounded-md border border-light px-3 py-2;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-semibold text-dark;
+  }
+}
