@@ -10,13 +10,16 @@ export default function Home() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("default");
+  const [page, setPage] = useState(1);
+  const limit = 12;
 
   useEffect(() => {
     async function fetchVenues() {
       try {
         const response = await axios.get(
-          "https://v2.api.noroff.dev/holidaze/venues"
+          `https://v2.api.noroff.dev/holidaze/venues?limit=${limit}&page=${page}`
         );
+
         setVenues(response.data.data);
       } catch (err) {
         setError("Failed to fetch venues");
@@ -26,7 +29,7 @@ export default function Home() {
     }
 
     fetchVenues();
-  }, []);
+  }, [page]);
 
   const filteredVenues = venues
     .filter((venue) => venue.name.toLowerCase().includes(search.toLowerCase()))
@@ -73,6 +76,22 @@ export default function Home() {
           ))}
         </div>
       )}
+      <div className="flex justify-center mt-4 space-x-2">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Forrige
+        </button>
+        <span>Side {page}</span>
+        <button
+          onClick={() => setPage((prev) => prev + 1)}
+          className="px-4 py-2 bg-gray-200 rounded"
+        >
+          Neste
+        </button>
+      </div>
     </div>
   );
 }
