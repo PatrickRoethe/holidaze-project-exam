@@ -1,4 +1,7 @@
+import { useEffect } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import PrivateRoute from "./components/Auth/PrivateRoute";
+import VenueManagerRoute from "./components/Auth/VenueManagerRoute";
 import Layout from "./components/Layout";
 import "./index.css";
 import Bookings from "./pages/Bookings";
@@ -11,8 +14,12 @@ import MyVenues from "./pages/MyVenues";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import VenueDetail from "./pages/VenueDetail";
+import useAuthStore from "./store/authStore";
 
 export default function App() {
+  useEffect(() => {
+    useAuthStore.getState().initAuth();
+  }, []);
   return (
     <Router>
       <Routes>
@@ -21,18 +28,58 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-
           <Route path="venues/:id" element={<VenueDetail />} />
 
           {/* Authenticated users */}
-          <Route path="profile" element={<Profile />} />
-          <Route path="bookings" element={<Bookings />} />
+          <Route
+            path="profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="bookings"
+            element={
+              <PrivateRoute>
+                <Bookings />
+              </PrivateRoute>
+            }
+          />
 
-          {/* Venue Manager specific */}
-          <Route path="venues/create" element={<CreateVenue />} />
-          <Route path="venues/:id/edit" element={<EditVenue />} />
-          <Route path="venues/:id/bookings" element={<BookingsAtVenue />} />
-          <Route path="my-venues" element={<MyVenues />} />
+          <Route
+            path="venues/create"
+            element={
+              <VenueManagerRoute>
+                <CreateVenue />
+              </VenueManagerRoute>
+            }
+          />
+          <Route
+            path="venues/:id/edit"
+            element={
+              <VenueManagerRoute>
+                <EditVenue />
+              </VenueManagerRoute>
+            }
+          />
+          <Route
+            path="venues/:id/bookings"
+            element={
+              <VenueManagerRoute>
+                <BookingsAtVenue />
+              </VenueManagerRoute>
+            }
+          />
+          <Route
+            path="my-venues"
+            element={
+              <VenueManagerRoute>
+                <MyVenues />
+              </VenueManagerRoute>
+            }
+          />
         </Route>
       </Routes>
     </Router>
