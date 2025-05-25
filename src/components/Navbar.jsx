@@ -25,9 +25,6 @@ export default function Navbar() {
               <Link to="/bookings" className="hover:underline">
                 My Bookings
               </Link>
-              <Link to="/venues/edit" className="hover:underline">
-                Edit Venue
-              </Link>
             </>
           )}
 
@@ -38,6 +35,9 @@ export default function Navbar() {
               </Link>
               <Link to="/venues/create" className="hover:underline">
                 Create Venue
+              </Link>
+              <Link to="/venues/edit" className="hover:underline">
+                Edit Venue
               </Link>
             </>
           )}
