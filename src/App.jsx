@@ -20,6 +20,7 @@ export default function App() {
   useEffect(() => {
     useAuthStore.getState().initAuth();
   }, []);
+
   return (
     <Router>
       <Routes>
@@ -28,31 +29,21 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-          <Route path="venues/:id" element={<VenueDetail />} />
 
-          {/* Authenticated users */}
-          <Route
-            path="profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="bookings"
-            element={
-              <PrivateRoute>
-                <Bookings />
-              </PrivateRoute>
-            }
-          />
-
+          {/* Order matters here! */}
           <Route
             path="venues/create"
             element={
               <VenueManagerRoute>
                 <CreateVenue />
+              </VenueManagerRoute>
+            }
+          />
+          <Route
+            path="venues/edit"
+            element={
+              <VenueManagerRoute>
+                <EditVenue />
               </VenueManagerRoute>
             }
           />
@@ -70,6 +61,25 @@ export default function App() {
               <VenueManagerRoute>
                 <BookingsAtVenue />
               </VenueManagerRoute>
+            }
+          />
+          <Route path="venues/:id" element={<VenueDetail />} />
+
+          {/* Authenticated users */}
+          <Route
+            path="profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="bookings"
+            element={
+              <PrivateRoute>
+                <Bookings />
+              </PrivateRoute>
             }
           />
           <Route
