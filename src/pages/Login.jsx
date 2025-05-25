@@ -17,6 +17,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
+  const setApiKey = useAuthStore((state) => state.setApiKey);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
 
@@ -25,6 +26,7 @@ export default function Login() {
     setLoginError("");
 
     try {
+      // Logg inn
       const response = await axios.post(
         "https://v2.api.noroff.dev/auth/login?_holidaze=true",
         {
@@ -35,9 +37,26 @@ export default function Login() {
 
       const { accessToken, ...user } = response.data.data;
 
-      login({ accessToken, user });
+      // Hent API-nøkkel etter login
+      const apiKeyRes = await axios.post(
+        "https://v2.api.noroff.dev/auth/create-api-key",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const apiKey = apiKeyRes.data.data.key;
+
+      // Lagre alt
+      login({ accessToken, user, apiKey });
+      setApiKey(apiKey);
       sessionStorage.setItem("accessToken", accessToken);
       sessionStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("apiKey", apiKey);
       useAuthStore.getState().initAuth();
 
       navigate("/profile");
