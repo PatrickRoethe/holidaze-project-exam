@@ -40,7 +40,6 @@ export default function Home() {
       return 0;
     });
 
-  // Beregn hvilke som vises på nåværende side
   const paginatedVenues = filteredVenues.slice(
     (page - 1) * limit,
     page * limit
@@ -50,7 +49,7 @@ export default function Home() {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div className="container mx-auto px-4 mt-8 space-y-4">
+    <div className="container mx-auto px-4 mt-8 space-y-6">
       {/* Filter controls */}
       <div className="flex flex-col md:flex-row gap-4 md:items-center">
         <input
@@ -59,7 +58,7 @@ export default function Home() {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            setPage(1); // Reset til første side ved nytt søk
+            setPage(1);
           }}
           className="w-full md:w-1/2 border border-light rounded px-4 py-2"
         />
@@ -87,11 +86,12 @@ export default function Home() {
       )}
 
       {/* Pagination controls */}
-      <div className="flex justify-center mt-4 space-x-2 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-center justify-center mt-6 space-y-2 sm:space-y-0 sm:space-x-2">
         <Button
           onClick={() => setPage(1)}
           disabled={page === 1}
           variant="primary"
+          className="w-full sm:w-auto"
         >
           Første side
         </Button>
@@ -99,14 +99,16 @@ export default function Home() {
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           disabled={page === 1}
           variant="secondary"
+          className="w-full sm:w-auto"
         >
           Forrige
         </Button>
-        <span className="flex items-center px-2">Side {page}</span>
+        <span className="text-sm font-medium px-2">Side {page}</span>
         <Button
           onClick={() => setPage((prev) => prev + 1)}
           disabled={page * limit >= filteredVenues.length}
           variant="secondary"
+          className="w-full sm:w-auto"
         >
           Neste
         </Button>
