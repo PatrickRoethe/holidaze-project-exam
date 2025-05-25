@@ -39,25 +39,55 @@ export default function Register() {
     };
 
     try {
-      const response = await axios.post(
+      // 1. Registrer bruker
+      const registerRes = await axios.post(
         "https://v2.api.noroff.dev/auth/register",
         payload
       );
 
-      const { accessToken, ...userRaw } = response.data.data;
+      if (registerRes.status !== 201) {
+        throw new Error("Registration failed");
+      }
+
+      // 2. Logg inn etter registrering
+      const loginRes = await axios.post(
+        "https://v2.api.noroff.dev/auth/login",
+        {
+          email: data.email,
+          password: data.password,
+        }
+      );
+
+      const { accessToken, ...userRaw } = loginRes.data.data;
       const user = {
         ...userRaw,
         venueManager: userRaw.venueManager === true,
       };
 
-      login({ accessToken, user });
+      // 3. Hent API-nøkkel
+      const keyRes = await axios.post(
+        "https://v2.api.noroff.dev/auth/create-api-key",
+        { name: "Holidaze App Key" }, // <- 🔧 FIX HER
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const apiKey = keyRes.data.data.key;
+
+      // 4. Lagre i Zustand + sessionStorage
+      login({ accessToken, user, apiKey });
       sessionStorage.setItem("accessToken", accessToken);
       sessionStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("apiKey", apiKey);
       useAuthStore.getState().initAuth();
 
       navigate("/profile");
     } catch (error) {
-      console.error("[REGISTER] Error:", error?.response?.data);
+      console.error("[REGISTER] Error:", error?.response || error);
       const message = error?.response?.data?.errors?.[0]?.message;
       setRegisterError(message || "Something went wrong. Please try again.");
     } finally {
@@ -103,6 +133,7 @@ export default function Register() {
           type="password"
           name="password"
           placeholder="Create a password"
+          autoComplete="new-password"
           {...register("password", {
             required: "Password is required",
             minLength: {
@@ -118,6 +149,7 @@ export default function Register() {
           type="password"
           name="confirmPassword"
           placeholder="Repeat your password"
+          autoComplete="new-password"
           {...register("confirmPassword", {
             required: "Please confirm your password",
             validate: (value) => value === password || "Passwords do not match",
