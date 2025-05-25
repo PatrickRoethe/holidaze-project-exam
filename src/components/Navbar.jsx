@@ -6,7 +6,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   function handleLogout() {
-    logout(); // logout rydder nå sessionStorage
+    logout();
     navigate("/");
   }
 
