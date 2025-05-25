@@ -91,7 +91,7 @@ export default function Register() {
       sessionStorage.setItem("apiKey", apiKey);
 
       // 5. Naviger til profil
-      window.location.href = "/profile";
+      window.location.href = "/Profile";
     } catch (error) {
       console.error("[REGISTER] Error:", error?.response || error);
       const message = error?.response?.data?.errors?.[0]?.message;
