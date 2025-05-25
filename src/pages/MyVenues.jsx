@@ -72,7 +72,13 @@ export default function MyVenues() {
                   {venue.price} NOK / night
                 </p>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 space-y-2">
+                <Button
+                  onClick={() => navigate(`/venues/${venue.id}/bookings`)}
+                  variant="secondary"
+                >
+                  See Bookings
+                </Button>
                 <Button
                   onClick={() => navigate(`/venues/${venue.id}/edit`)}
                   variant="primary"
