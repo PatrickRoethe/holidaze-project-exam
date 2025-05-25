@@ -5,13 +5,25 @@ import Button from "../components/base/Button";
 import DatePicker from "../components/base/DatePicker";
 import ErrorMessage from "../components/base/ErrorMessage";
 import Loader from "../components/base/Loader";
+import useAuth from "../hooks/useAuth";
+
+function stripTime(date) {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  ).getTime();
+}
 
 export default function VenueDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { accessToken, apiKey } = useAuth();
+
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [guests, setGuests] = useState(1);
@@ -43,13 +55,13 @@ export default function VenueDetail() {
   );
 
   const isRangeBooked = (from, to) => {
-    const start = from?.getTime();
-    const end = to?.getTime();
-    if (!start || !end) return false;
+    if (!from || !to) return false;
+    const start = stripTime(from);
+    const end = stripTime(to);
 
     return bookedDates.some((b) => {
-      const bookedFrom = new Date(b.dateFrom).getTime();
-      const bookedTo = new Date(b.dateTo).getTime();
+      const bookedFrom = stripTime(new Date(b.dateFrom));
+      const bookedTo = stripTime(new Date(b.dateTo));
       return (
         (start >= bookedFrom && start <= bookedTo) ||
         (end >= bookedFrom && end <= bookedTo) ||
@@ -58,14 +70,9 @@ export default function VenueDetail() {
     });
   };
 
-  // ✅ Direkte validering når én av datoene endres
   useEffect(() => {
     if (dateFrom && dateTo && isRangeBooked(dateFrom, dateTo)) {
       setDateError("Selected dates overlap with existing bookings.");
-    } else if (dateFrom && !dateTo && isRangeBooked(dateFrom, dateFrom)) {
-      setDateError("Selected start date is already booked.");
-    } else if (!dateFrom && dateTo && isRangeBooked(dateTo, dateTo)) {
-      setDateError("Selected end date is already booked.");
     } else {
       setDateError("");
     }
@@ -80,8 +87,7 @@ export default function VenueDetail() {
   }
 
   async function handleBooking() {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!accessToken || !apiKey) {
       navigate("/login");
       return;
     }
@@ -98,11 +104,15 @@ export default function VenueDetail() {
           venueId: id,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "X-Noroff-API-Key": apiKey,
+          },
         }
       );
       setFeedback("Booking successful!");
     } catch (err) {
+      console.error("Booking failed", err);
       setFeedback("Booking failed. Please try again.");
     }
   }
@@ -110,6 +120,8 @@ export default function VenueDetail() {
   if (loading) return <Loader />;
   if (error) return <ErrorMessage message={error} />;
   if (!venue) return null;
+
+  const isLoggedIn = !!accessToken;
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -129,9 +141,11 @@ export default function VenueDetail() {
         <p className="text-primary font-semibold">{venue.price} NOK / night</p>
       </div>
 
-      <Button onClick={() => setShowBooking((prev) => !prev)}>
-        {showBooking ? "Hide Booking" : "Book Now"}
-      </Button>
+      {isLoggedIn && (
+        <Button onClick={() => setShowBooking((prev) => !prev)}>
+          {showBooking ? "Hide Booking" : "Book Now"}
+        </Button>
+      )}
 
       {showBooking && (
         <div className="mt-4 space-y-4 border p-4 rounded bg-light">
