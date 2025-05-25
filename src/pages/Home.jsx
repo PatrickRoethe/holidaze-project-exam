@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Button from "../components/base/Button";
 import ErrorMessage from "../components/base/ErrorMessage";
 import Loader from "../components/base/Loader";
-import VenueCard from "../components/venue/VenueCard";
+import VenueCard from "../components/Venue/VenueCard";
 
 export default function Home() {
   const [venues, setVenues] = useState([]);
