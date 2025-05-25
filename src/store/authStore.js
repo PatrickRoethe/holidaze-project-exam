@@ -11,7 +11,10 @@ const useAuthStore = create((set) => ({
       user,
       accessToken,
       apiKey,
-      isVenueManager: user.venueManager === true,
+      isVenueManager:
+        user.venueManager === true ||
+        user.venueManager === "true" ||
+        user.venueManager === 1,
     }),
 
   logout: () => {
@@ -36,7 +39,10 @@ const useAuthStore = create((set) => ({
         user: storedUser || null,
         accessToken: storedToken || null,
         apiKey: storedApiKey || null,
-        isVenueManager: storedUser?.venueManager === true,
+        isVenueManager:
+          storedUser?.venueManager === true ||
+          storedUser?.venueManager === "true" ||
+          storedUser?.venueManager === 1,
       });
     } catch (e) {
       console.error("[initAuth] Failed to parse sessionStorage:", e);

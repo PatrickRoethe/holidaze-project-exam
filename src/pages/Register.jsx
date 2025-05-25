@@ -49,9 +49,9 @@ export default function Register() {
         throw new Error("Registration failed");
       }
 
-      // 2. Logg inn etter registrering
+      // 2. Logg inn etter registrering (med ?_holidaze=true)
       const loginRes = await axios.post(
-        "https://v2.api.noroff.dev/auth/login",
+        "https://v2.api.noroff.dev/auth/login?_holidaze=true",
         {
           email: data.email,
           password: data.password,
@@ -59,15 +59,19 @@ export default function Register() {
       );
 
       const { accessToken, ...userRaw } = loginRes.data.data;
+
       const user = {
         ...userRaw,
-        venueManager: userRaw.venueManager === true,
+        venueManager:
+          userRaw.venueManager === true ||
+          userRaw.venueManager === "true" ||
+          userRaw.venueManager === 1,
       };
 
       // 3. Hent API-nøkkel
       const keyRes = await axios.post(
         "https://v2.api.noroff.dev/auth/create-api-key",
-        { name: "Holidaze App Key" }, // <- 🔧 FIX HER
+        { name: "Holidaze App Key" },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -78,14 +82,16 @@ export default function Register() {
 
       const apiKey = keyRes.data.data.key;
 
-      // 4. Lagre i Zustand + sessionStorage
+      // 4. Lagre i Zustand og sessionStorage
       login({ accessToken, user, apiKey });
+      useAuthStore.getState().initAuth(); // 🔥 Sikrer korrekt tilgang med én gang
+
       sessionStorage.setItem("accessToken", accessToken);
       sessionStorage.setItem("user", JSON.stringify(user));
       sessionStorage.setItem("apiKey", apiKey);
-      useAuthStore.getState().initAuth();
 
-      navigate("/profile");
+      // 5. Naviger til profil
+      window.location.href = "/profile";
     } catch (error) {
       console.error("[REGISTER] Error:", error?.response || error);
       const message = error?.response?.data?.errors?.[0]?.message;
